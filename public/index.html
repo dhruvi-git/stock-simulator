@@ -250,10 +250,13 @@ socket.on('stateUpdate', (data) => {
     globalState.orders = data.orders;
     globalState.candleHistory = data.candleHistory;
     
-  // Avoid re-rendering the whole app on every state update.
-  // - If a user is logged in, re-render to reflect their view.
-  // - If admin is viewing, use the surgical updater to preserve inputs.
-  if(CU) render();
+  // Avoid re-rendering the market while a trade panel input is active.
+  // The timer/grid loops keep prices fresh; this prevents the socket update
+  // from blowing away focused inputs every couple of seconds.
+  if(CU){
+    if(TAB==='market' && SEL) return;
+    render();
+  }
   else if(IA) adminSurgicalUpdate();
 });
 
