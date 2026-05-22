@@ -1,0 +1,20 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.env
+.env.*
+.vscode/
+.idea/
+mock_stock.sqlite
+*.sqlite
+*.log
+dist/
+build/
+coverage/
+tmp/
+*.tgz
+// OS files
+Thumbs.db
+
