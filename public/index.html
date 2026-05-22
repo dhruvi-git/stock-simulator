@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mock Stock Simulator</title>
+<title>Dalaal Street</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',sans-serif;overflow-x:hidden}
+html,body{min-height:100%;background:#06080f;color:#e2e8f0;font-family:'Inter',sans-serif;overflow-x:hidden}
 :root{
-  --c:#0066FF;--g:#00B386;--r:#FF3B3B;--a:#F5A623;--p:#7C3AED;
-  --bg0:#F0F2F5;--bg1:#FFFFFF;--bg2:#FFFFFF;--bg3:#F7F8FA;--bg4:#EEF0F4;
-  --bd:#DDE1EA;--bd2:#C8CDD8;--mu:#7A8499;
+  --c:#00e5ff;--g:#00ff9d;--r:#ff3d5a;--a:#ffb800;--p:#b388ff;
+  --bg0:#06080f;--bg1:#0b0f1c;--bg2:#0f1628;--bg3:#162035;--bg4:#1c2a42;
+  --bd:#1e3356;--bd2:#243d65;--mu:#3d5a7a;
   --font-mono:'JetBrains Mono',monospace;
 }
 /* ── SHELL ── */
@@ -19,7 +19,7 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .topbar{background:var(--bg1);border-bottom:1px solid var(--bd);padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
 .logo{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--c);letter-spacing:3px}
 .round-chip{background:rgba(0,229,255,.08);color:var(--c);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(0,229,255,.25);font-family:var(--font-mono)}
-.news-chip{background:#FFF8E6;border:1px solid #F5A623;color:#B87000;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.news-chip{background:#1a1200;border:1px solid #854d0e;color:#ffb800;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .xbtn{background:transparent;border:1px solid var(--bd);color:var(--mu);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;transition:all .15s}
 .xbtn:hover{border-color:var(--c);color:var(--c)}
 .xbtn.gbtn{border-color:rgba(0,255,157,.2);color:var(--g)}
@@ -40,15 +40,15 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .bell-close{background:rgba(255,61,90,.12);color:var(--r);border:1px solid rgba(255,61,90,.3)}
 
 /* ── TICKER ── */
-.ticker-bar{background:#1A2035;border-bottom:1px solid var(--bd);height:26px;overflow:hidden}
+.ticker-bar{background:#070a14;border-bottom:1px solid var(--bd);height:26px;overflow:hidden}
 .tick-inner{display:inline-flex;align-items:center;height:100%;white-space:nowrap;animation:scrolltick 60s linear infinite}
 @keyframes scrolltick{0%{transform:translateX(80vw)}100%{transform:translateX(-100%)}}
 .ti{display:inline-flex;align-items:center;gap:5px;margin:0 16px;font-size:11px;font-family:var(--font-mono)}
 .ti-n{color:var(--mu)}.ti-u{color:var(--g);font-weight:700}.ti-d{color:var(--r);font-weight:700}
 
 /* ── STAT BAR ── */
-.stat-bar{background:#FFFFFF;border-bottom:1px solid var(--bd);padding:5px 20px;display:flex;justify-content:center;gap:36px;font-size:12px;font-family:var(--font-mono)}
-.stat-bar span{color:#1A2035}
+.stat-bar{background:var(--bg1);border-bottom:1px solid var(--bd);padding:5px 20px;display:flex;justify-content:center;gap:36px;font-size:12px;font-family:var(--font-mono)}
+.stat-bar span{color:var(--mu)}
 
 /* ── TABS ── */
 .tabs-row{background:var(--bg1);border-bottom:1px solid var(--bd);display:flex;justify-content:center}
@@ -62,9 +62,9 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 /* ── MARKET ── */
 .stock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:1020px;margin:0 auto 18px}
 .sc{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:13px 12px;cursor:pointer;transition:all .15s;text-align:center;position:relative;overflow:hidden}
-.sc::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,102,255,.04),transparent 70%);pointer-events:none}
+.sc::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,229,255,.04),transparent 70%);pointer-events:none}
 .sc:hover{border-color:var(--c);transform:translateY(-2px)}
-.sc.active{border-color:var(--c);background:#EBF3FF;box-shadow:0 0 0 1px var(--c),0 4px 24px rgba(0,102,255,.12)}
+.sc.active{border-color:var(--c);background:var(--bg3);box-shadow:0 0 0 1px var(--c),0 4px 24px rgba(0,229,255,.1)}
 .sc-name{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono)}
 .sc-price{font-size:16px;font-weight:700;margin-bottom:2px;font-family:var(--font-mono)}
 .sc-chg{font-size:11px;font-weight:700;margin-bottom:7px;font-family:var(--font-mono)}
@@ -75,13 +75,13 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .up{color:var(--g)}.dn{color:var(--r)}
 
 /* ── TRADE PANEL ── */
-.trade-panel-wrap{max-width:1020px;margin:0 auto 20px;background:#FFFFFF;border:1px solid var(--c);border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,102,255,.10)}
+.trade-panel-wrap{max-width:1020px;margin:0 auto 20px;background:var(--bg2);border:1px solid var(--c);border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(0,229,255,.06)}
 .tp-header{background:var(--bg3);padding:16px 22px 12px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--bd)}
 .tp-close{background:transparent;border:1px solid var(--bd);color:var(--mu);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
 .tp-close:hover{border-color:var(--r);color:var(--r)}
 .tp-body{display:grid;grid-template-columns:1fr 320px}
 .tp-chart-col{padding:18px 22px;border-right:1px solid var(--bd)}
-.tp-trade-col{padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:#F7F8FA}
+.tp-trade-col{padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:var(--bg1)}
 
 /* ── CANDLE CHART ── */
 .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -100,18 +100,18 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .atab.son{background:rgba(255,61,90,.08);color:var(--r)}
 .atab.oon{background:rgba(255,184,0,.08);color:var(--a)}
 .flbl{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;display:block;font-family:var(--font-mono)}
-.inp{width:100%;background:#F7F8FA;border:1px solid var(--bd);color:#1A2035;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:var(--font-mono)}
+.inp{width:100%;background:#080d1a;border:1px solid var(--bd);color:#e2e8f0;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:var(--font-mono)}
 .inp:focus{border-color:var(--c)}
 .inp::placeholder{color:#243050}
-.cbox{background:#F7F8FA;border:1px solid var(--bd);border-radius:8px;padding:10px 14px}
+.cbox{background:#080d1a;border:1px solid var(--bd);border-radius:8px;padding:10px 14px}
 .crow{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
-.clbl{color:var(--mu)}.cval{font-weight:600;color:#1A2035;font-family:var(--font-mono)}
+.clbl{color:var(--mu)}.cval{font-weight:600;color:#e2e8f0;font-family:var(--font-mono)}
 .ebtn{width:100%;padding:12px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:all .15s;font-family:inherit}
 .ebtn:active{transform:scale(.98)}
 .eg{background:var(--g);color:#fff}.er{background:var(--r);color:#fff}.ea{background:var(--a);color:#fff}
-.hpill{background:#F7F8FA;border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
-.ocard{background:#F7F8FA;border:1px solid var(--bd);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s;margin-bottom:6px}
-.ocard:hover{border-color:var(--bd2)}.ocard.pk{border-color:var(--c);background:#EBF3FF}
+.hpill{background:#080d1a;border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.ocard{background:#080d1a;border:1px solid var(--bd);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s;margin-bottom:6px}
+.ocard:hover{border-color:var(--bd2)}.ocard.pk{border-color:var(--c);background:#091824}
 .empty{text-align:center;padding:24px 16px;color:var(--mu);font-size:12px;line-height:1.6}
 
 /* ── PORTFOLIO ── */
@@ -127,11 +127,11 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .hold-table th{padding:10px 14px;font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);background:var(--bg3);text-align:left;font-family:var(--font-mono)}
 .hold-table td{padding:12px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .hold-table tr:last-child td{border:none}
-.hold-table tr:hover td{background:#EBF3FF}
+.hold-table tr:hover td{background:rgba(22,32,53,.6)}
 .hold-stock-name{font-weight:700;font-size:13px;color:var(--c);font-family:var(--font-mono)}
 .hold-qty{font-family:var(--font-mono);font-size:13px;color:#94a3b8}
 .hold-price{font-family:var(--font-mono);font-size:12px;color:var(--mu)}
-.hold-val{font-family:var(--font-mono);font-size:13px;font-weight:600;color:#1A2035}
+.hold-val{font-family:var(--font-mono);font-size:13px;font-weight:600;color:#e2e8f0}
 .pnl-cell{text-align:right}
 .pnl-pos{background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);border-radius:8px;padding:6px 10px;display:inline-block;min-width:90px}
 .pnl-neg{background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:6px 10px;display:inline-block;min-width:90px}
@@ -143,10 +143,10 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .board-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
 .board-title{padding:10px 16px;background:var(--bg3);font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd);font-family:var(--font-mono)}
 .otbl{width:100%;border-collapse:collapse;font-size:12px}
-.otbl th{padding:8px 12px;color:var(--mu);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--bd);background:#F7F8FA;text-align:center;font-family:var(--font-mono)}
-.otbl td{padding:9px 12px;border-bottom:1px solid var(--bd);color:#1A2035;text-align:center;font-family:var(--font-mono)}
+.otbl th{padding:8px 12px;color:var(--mu);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--bd);background:rgba(22,32,53,.5);text-align:center;font-family:var(--font-mono)}
+.otbl td{padding:9px 12px;border-bottom:1px solid rgba(30,51,86,.4);color:#e2e8f0;text-align:center;font-family:var(--font-mono)}
 .otbl tr:last-child td{border:none}
-.otbl tr:hover td{background:#EBF3FF}
+.otbl tr:hover td{background:rgba(22,32,53,.6)}
 .tag-u{background:rgba(0,255,157,.1);color:var(--g);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;display:inline-block;border:1px solid rgba(0,255,157,.2)}
 .tag-d{background:rgba(255,61,90,.1);color:var(--r);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;display:inline-block;border:1px solid rgba(255,61,90,.2)}
 
@@ -163,16 +163,16 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .lb-tbl-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
 .lb-tbl{width:100%;border-collapse:collapse;font-size:12px}
 .lb-tbl th{padding:10px 14px;font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);background:var(--bg3);text-align:center;font-family:var(--font-mono)}
-.lb-tbl td{padding:11px 14px;border-bottom:1px solid var(--bd);color:#1A2035;text-align:center;font-family:var(--font-mono)}
+.lb-tbl td{padding:11px 14px;border-bottom:1px solid rgba(30,51,86,.4);color:#e2e8f0;text-align:center;font-family:var(--font-mono)}
 .lb-tbl tr:last-child td{border:none}
-.lb-tbl tr:hover td{background:#EBF3FF}
+.lb-tbl tr:hover td{background:rgba(22,32,53,.6)}
 
 /* ── ADMIN ── */
 .admin-wrap{max-width:940px;margin:0 auto}
 .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .acard{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px}
 .acard-title{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;text-align:center;font-family:var(--font-mono)}
-.ainp{width:100%;background:#F7F8FA;border:1px solid var(--bd);color:#1A2035;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit;margin-bottom:10px}
+.ainp{width:100%;background:#080d1a;border:1px solid var(--bd);color:#e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;font-family:inherit;margin-bottom:10px}
 .ainp:focus{border-color:var(--c)}
 .abtn{padding:9px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
 .abtn:active{transform:scale(.97)}
@@ -184,16 +184,16 @@ html,body{min-height:100%;background:#F0F2F5;color:#1A2035;font-family:'Inter',s
 .pb-seg{flex:1;height:4px;border-radius:2px}
 .tbl-mini{width:100%;border-collapse:collapse;font-size:12px}
 .tbl-mini th{padding:8px 12px;font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--bd);background:var(--bg3);text-align:left;font-family:var(--font-mono)}
-.tbl-mini td{padding:8px 12px;border-bottom:1px solid var(--bd);color:#1A2035;font-family:var(--font-mono)}
+.tbl-mini td{padding:8px 12px;border-bottom:1px solid rgba(30,51,86,.4);color:#e2e8f0;font-family:var(--font-mono)}
 .tbl-mini tr:last-child td{border:none}
-.tbl-mini tr:hover td{background:#EBF3FF}
+.tbl-mini tr:hover td{background:rgba(22,32,53,.6)}
 
 /* ── LOGIN ── */
 .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg0)}
-.login-card{background:#FFFFFF;border:1px solid var(--bd);border-radius:16px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.10)}
+.login-card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:40px 36px;width:360px;text-align:center;box-shadow:0 0 60px rgba(0,229,255,.05)}
 .login-logo{font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--c);letter-spacing:4px;margin-bottom:4px}
 .login-sub{font-size:12px;color:var(--mu);margin-bottom:28px;font-family:var(--font-mono)}
-.linp{width:100%;background:#F7F8FA;border:1px solid var(--bd);color:#1A2035;border-radius:8px;padding:11px 14px;font-size:14px;outline:none;font-family:var(--font-mono);margin-bottom:10px;text-align:center}
+.linp{width:100%;background:#080d1a;border:1px solid var(--bd);color:#e2e8f0;border-radius:8px;padding:11px 14px;font-size:14px;outline:none;font-family:var(--font-mono);margin-bottom:10px;text-align:center}
 .linp:focus{border-color:var(--c)}
 .lbtn{width:100%;padding:11px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:inherit}
 .lb-c{background:var(--c);color:#fff}.lb-o{background:transparent;border:1px solid var(--bd);color:var(--mu)}
@@ -420,7 +420,7 @@ function shellHTML(){
   const tabs=[['market','Market'],['portfolio','Portfolio'],['orders','Order Board'],['leaderboard','Leaderboard']];
   return`<div class="app">
     <div class="topbar">
-      <div class="logo">MOCK STOCK</div>
+      <div class="logo">DALAAL ST.</div>
       <div style="display:flex;align-items:center;gap:8px">
         ${s.news?`<div class="news-chip">📡 ${s.news}</div>`:''}
         <div class="round-chip">${s.round===1?'ROUND 1 — IPO':'ROUND '+s.round+' / 5'}</div>
@@ -439,7 +439,7 @@ function shellHTML(){
         </div>
         <div>
           <div class="timer-label">ROUND</div>
-          <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:#1A2035">${s.round} / 5</div>
+          <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:#e2e8f0">${s.round} / 5</div>
         </div>
       </div>
       <div class="round-progress-track"><div class="round-progress-fill" id="prog-fill" style="width:0%"></div></div>
@@ -528,7 +528,7 @@ function marketHTML(){
     const maxP=Math.max(...PRICES[st]);
     const bars=PRICES[st].slice(0,Math.max(s.round,1)).map((p,i)=>{
       const h=Math.max(4,Math.round((p/maxP)*20));
-      const col=i===0?'#C8CDD8':p>=(PRICES[st][Math.max(i-1,0)])?'#00ff9d':'#ff3d5a';
+      const col=i===0?'#1e3356':p>=(PRICES[st][Math.max(i-1,0)])?'#00ff9d':'#ff3d5a';
       return`<div class="sc-bar" style="height:${h}px;background:${col}"></div>`;
     }).join('');
     return`<div class="sc${SEL===st?' active':''}" onclick="openTrade('${st}')">
@@ -602,7 +602,7 @@ function tradePanelHTML(){
         const cheap=o.price<=cur;
         return`<div class="ocard${PICKED===o.id?' pk':''}" onclick="pickOrd(${o.id})">
           <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;color:#1A2035;font-family:var(--font-mono)">${o.seller}</div>
+            <div style="font-size:12px;font-weight:700;color:#e2e8f0;font-family:var(--font-mono)">${o.seller}</div>
             <div style="font-size:11px;color:var(--mu);margin-top:2px;font-family:var(--font-mono)">${o.qty} shares &nbsp;<span class="${cheap?'tag-u':'tag-d'}">${cheap?'↓ BELOW':'↑ ABOVE'}</span></div>
           </div>
           <div style="text-align:right"><div style="font-size:14px;font-weight:700;font-family:var(--font-mono)">${inr(o.price)}</div><div style="font-size:9px;color:var(--mu);">/share</div></div>
@@ -705,7 +705,7 @@ function drawLineChart(){
   const ptX=(t,i)=>pad.l+(i/(Math.max(pts.length-1,1)))*chartW;
 
   // Grid
-  ctx.strokeStyle='#DDE1EA';ctx.lineWidth=1;
+  ctx.strokeStyle='#162035';ctx.lineWidth=1;
   [0,.25,.5,.75,1].forEach(f=>{
     const y=pad.t+f*chartH;
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
@@ -727,13 +727,13 @@ function drawLineChart(){
   // Line
   ctx.beginPath();
   pts.forEach((pt,i)=>{const x=ptX(pt.t,i),y=ptY(pt.p);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  ctx.strokeStyle='#0066FF';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
+  ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
 
   // Dots at each point
   pts.forEach((pt,i)=>{
     const x=ptX(pt.t,i),y=ptY(pt.p);
     ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);
-    ctx.fillStyle='#0066FF';ctx.fill();
+    ctx.fillStyle='#00e5ff';ctx.fill();
   });
 
   // X labels
@@ -763,7 +763,7 @@ function drawLineChart(){
       const pt=pts[clamped];
       const secIn=Math.round((pt.t-s.roundStart)/1000);
       const m=Math.floor(secIn/60),sec=secIn%60;
-      tip.innerHTML=`<span style="color:var(--mu)">T:</span><span style="color:#1A2035"> ${m}:${String(sec).padStart(2,'0')}</span> &nbsp;<span style="color:var(--mu)">Price:</span><span style="color:var(--c)"> ${inr(pt.p)}</span>`;
+      tip.innerHTML=`<span style="color:var(--mu)">T:</span><span style="color:#e2e8f0"> ${m}:${String(sec).padStart(2,'0')}</span> &nbsp;<span style="color:var(--mu)">Price:</span><span style="color:var(--c)"> ${inr(pt.p)}</span>`;
     }
   };
   canvas.onmouseleave=()=>{if(tip)tip.innerHTML=''};
@@ -808,7 +808,7 @@ function drawCandleChartCandles(){
   const ptY=p=>pad.t+((maxP-p)/range)*chartH;
 
   // Grid
-  ctx.strokeStyle='#DDE1EA';ctx.lineWidth=1;
+  ctx.strokeStyle='#162035';ctx.lineWidth=1;
   [0,.25,.5,.75,1].forEach(f=>{
     const y=pad.t+f*chartH;
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
@@ -873,7 +873,7 @@ function drawCandleChartCandles(){
       const c=candles[idx];
       const chg=((c.c-c.o)/c.o*100).toFixed(2);
       const cls=c.c>=c.o?'#00ff9d':'#ff3d5a';
-      tip.innerHTML=`<span style="color:var(--mu)">O:</span><span style="color:#1A2035"> ${inr(c.o)}</span> &nbsp;<span style="color:var(--g)">H:</span><span style="color:#1A2035"> ${inr(c.h)}</span> &nbsp;<span style="color:var(--r)">L:</span><span style="color:#1A2035"> ${inr(c.l)}</span> &nbsp;<span style="color:var(--mu)">C:</span><span style="color:#1A2035"> ${inr(c.c)}</span> &nbsp;<span style="color:${cls}">${c.c>=c.o?'+':''}${chg}%</span>`;
+      tip.innerHTML=`<span style="color:var(--mu)">O:</span><span style="color:#e2e8f0"> ${inr(c.o)}</span> &nbsp;<span style="color:var(--g)">H:</span><span style="color:#e2e8f0"> ${inr(c.h)}</span> &nbsp;<span style="color:var(--r)">L:</span><span style="color:#e2e8f0"> ${inr(c.l)}</span> &nbsp;<span style="color:var(--mu)">C:</span><span style="color:#e2e8f0"> ${inr(c.c)}</span> &nbsp;<span style="color:${cls}">${c.c>=c.o?'+':''}${chg}%</span>`;
     }
   };
   canvas.onmouseleave=()=>{if(tip)tip.innerHTML=''};
@@ -968,7 +968,7 @@ function portfolioHTML(){
   const legend=slices.filter(sl=>sl.val>0).map(sl=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd)">
     <div style="width:9px;height:9px;border-radius:2px;background:${sl.color};flex-shrink:0"></div>
     <span style="font-size:11px;color:#94a3b8;flex:1;font-family:var(--font-mono)">${sl.label}</span>
-    <span style="font-size:11px;font-weight:700;color:#1A2035;font-family:var(--font-mono)">${(sl.val/total*100).toFixed(1)}%</span>
+    <span style="font-size:11px;font-weight:700;color:#e2e8f0;font-family:var(--font-mono)">${(sl.val/total*100).toFixed(1)}%</span>
     <span style="font-size:11px;color:var(--mu);font-family:var(--font-mono);width:80px;text-align:right">${inr(sl.val)}</span>
   </div>`).join('');
 
@@ -1137,8 +1137,8 @@ function manualRefresh(){
 ───────────────────────────────────────────── */
 function loginHTML(){
   return`<div class="login-wrap"><div class="login-card">
-    <div class="login-logo">MOCK STOCK</div>
-    <div class="login-sub">MOCK STOCK SIMULATOR</div>
+    <div class="login-logo">DALAAL ST.</div>
+    <div class="login-sub">P2P STOCK MARKET SIMULATOR</div>
     <input class="linp" type="text" id="tni" placeholder="Enter your team name..."/>
     <button class="lbtn lb-c" onclick="joinTeam()">JOIN GAME</button>
     <button class="lbtn lb-o" onclick="joinAdmin()">ADMIN PANEL</button>
@@ -1263,7 +1263,7 @@ function adminSurgicalUpdate(){
   // Update live news preview (only the preview badge, not the input)
   const newsPrev=document.getElementById('admin-news-preview');
   if(newsPrev){
-    newsPrev.innerHTML=s.news?`<div style="background:#FFF8E6;border:1px solid #F5A623;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#B87000;font-family:var(--font-mono)">LIVE: "${s.news}"</div>`:'';
+    newsPrev.innerHTML=s.news?`<div style="background:#1a1200;border:1px solid #854d0e;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#ffb800;font-family:var(--font-mono)">LIVE: "${s.news}"</div>`:'';
   }
 }
 
@@ -1293,7 +1293,7 @@ function adminHTML(){
         <div style="font-size:40px;font-weight:700;color:var(--c);font-family:var(--font-mono)">${teamCount}</div>
         <div style="font-size:10px;color:var(--mu);font-family:var(--font-mono);margin-top:2px">teams in lobby</div>
       </div>
-      <div style="background:#F7F8FA;border:1px solid var(--bd);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#94a3b8;font-family:var(--font-mono);text-align:center;line-height:1.6">
+      <div style="background:#080d1a;border:1px solid var(--bd);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#94a3b8;font-family:var(--font-mono);text-align:center;line-height:1.6">
         All teams must join before you start.<br>Once started, Round 1 (IPO) begins immediately.
       </div>
       <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
@@ -1325,13 +1325,13 @@ function adminHTML(){
       </div>
       <div style="font-size:10px;color:var(--mu);font-family:var(--font-mono);text-align:center;margin-bottom:4px">Fast Forward sets time remaining to:</div>
       <div style="display:flex;gap:6px;justify-content:center">
-        ${[5,2,1].map(m=>`<button onclick="fastForwardTo(${m})" style="padding:4px 12px;border-radius:6px;border:1px solid var(--bd2);background:#F7F8FA;color:var(--mu);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-mono)">${m}min</button>`).join('')}
+        ${[5,2,1].map(m=>`<button onclick="fastForwardTo(${m})" style="padding:4px 12px;border-radius:6px;border:1px solid var(--bd2);background:#080d1a;color:var(--mu);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-mono)">${m}min</button>`).join('')}
       </div>`;
   }
 
   return`<div class="app">
     <div class="topbar">
-      <div class="logo">MOCK STOCK — ADMIN</div>
+      <div class="logo">DALAAL ST. — ADMIN</div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="round-chip">${isLobby?'LOBBY':('ROUND '+s.round+' / 5')}</div>
         ${!isLobby?`<div style="font-family:var(--font-mono);font-size:13px;color:var(--c)" id="admin-topbar-time">${timeLeft}</div>`:''}
@@ -1353,7 +1353,7 @@ function adminHTML(){
               <button class="abtn ab-a" style="flex:1" onclick="broadcastNews()">BROADCAST</button>
               <button class="abtn ab-o" onclick="clearNews()">CLEAR</button>
             </div>
-            ${s.news?`<div id="admin-news-preview"><div style="background:#FFF8E6;border:1px solid #F5A623;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#B87000;font-family:var(--font-mono)">LIVE: "${s.news}"</div></div>`:'<div id="admin-news-preview"></div>'}          </div>
+            ${s.news?`<div id="admin-news-preview"><div style="background:#1a1200;border:1px solid #854d0e;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#ffb800;font-family:var(--font-mono)">LIVE: "${s.news}"</div></div>`:'<div id="admin-news-preview"></div>'}          </div>
           <div class="acard">
             <div class="acard-title">Add Team</div>
             <input class="ainp" type="text" id="atn" placeholder="Team name..."/>
@@ -1361,7 +1361,7 @@ function adminHTML(){
           </div>
           <div class="acard">
             <div class="acard-title">Market Snapshot</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${STOCKS.slice(0,6).map(st=>`<div style="display:flex;justify-content:space-between;background:#F7F8FA;border-radius:6px;padding:6px 8px"><span style="font-size:10px;color:var(--mu);font-family:var(--font-mono)">${st}</span><span style="font-size:11px;font-weight:700;color:var(--c);font-family:var(--font-mono)">${inr(gp(st))}</span></div>`).join('')}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">${STOCKS.slice(0,6).map(st=>`<div style="display:flex;justify-content:space-between;background:#080d1a;border-radius:6px;padding:6px 8px"><span style="font-size:10px;color:var(--mu);font-family:var(--font-mono)">${st}</span><span style="font-size:11px;font-weight:700;color:var(--c);font-family:var(--font-mono)">${inr(gp(st))}</span></div>`).join('')}</div>
           </div>
         </div>
         <div class="acard" style="margin-bottom:14px">
@@ -1395,13 +1395,6 @@ function broadcastNews(){
 }
 function clearNews(){ socket.emit('adminAction', {action: 'clearNews', pass: ADMIN_PASS}); }
 function adminCancel(id){ socket.emit('adminAction', {action: 'adminCancel', payload: id, pass: ADMIN_PASS}); }
-
-// Admin actions below emit to server; avoid local full re-renders to preserve inputs.
-function adminCancel(id){
-  const s=gs();const o=s.orders.find(x=>x.id===id);if(!o)return;
-  if(s.teams[o.seller])s.teams[o.seller].holdings[o.stock]=(s.teams[o.seller].holdings[o.stock]||0)+o.qty;
-  o.qty=0;sv(s);toast('Order cancelled');adminSurgicalUpdate();
-}
 
 // Bootstrap
 render();
