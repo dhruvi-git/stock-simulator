@@ -1193,7 +1193,7 @@ function startLoops(){
           const maxP=Math.max(...PRICES[st]);
           const bars=PRICES[st].slice(0,Math.max(s.round,1)).map((p2,i)=>{
             const h=Math.max(4,Math.round((p2/maxP)*20));
-            const col=i===0?'#C8CDD8':p2>=(PRICES[st][Math.max(i-1,0)])?'#00ff9d':'#ff3d5a';
+            const col=i===0?'#1e3356':p2>=(PRICES[st][Math.max(i-1,0)])?'#00ff9d':'#ff3d5a';
             return`<div class="sc-bar" style="height:${h}px;background:${col}"></div>`;
           }).join('');
           return`<div class="sc${SEL===st?' active':''}" onclick="openTrade('${st}')">
