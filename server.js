@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
@@ -9,9 +8,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// SQLite Database Setup
-const dbFile = path.join(__dirname, 'mock_stock.sqlite');
-const db = new sqlite3.Database(dbFile);
+// Lightweight JSON persistence to avoid native database dependencies on Render.
+const stateFile = path.join(__dirname, 'mock_stock_state.json');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -48,72 +46,34 @@ let teams = {};
 let orders = [];
 let candleHistory = {};
 
-// Load state from DB
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS GameState (key TEXT PRIMARY KEY, value TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS Teams (name TEXT PRIMARY KEY, cash REAL, holdings TEXT, avgBuy TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS Orders (id INTEGER PRIMARY KEY, stock TEXT, seller TEXT, qty INTEGER, price REAL)`);
-    db.run(`CREATE TABLE IF NOT EXISTS CandleHistory (key TEXT PRIMARY KEY, candles TEXT)`);
-    
-    // Attempt to load existing state
-    db.all("SELECT * FROM GameState", [], (err, rows) => {
-        if (rows) {
-            rows.forEach(r => {
-                if (r.key === 'state') gameState = JSON.parse(r.value);
-            });
-        }
-    });
-    db.all("SELECT * FROM Teams", [], (err, rows) => {
-        if (rows) {
-            rows.forEach(r => {
-                teams[r.name] = {
-                    cash: r.cash,
-                    holdings: JSON.parse(r.holdings || '{}'),
-                    avgBuy: JSON.parse(r.avgBuy || '{}')
-                };
-            });
-        }
-    });
-    db.all("SELECT * FROM Orders", [], (err, rows) => {
-        if (rows) orders = rows;
-    });
-    db.all("SELECT * FROM CandleHistory", [], (err, rows) => {
-        if (rows) {
-            rows.forEach(r => {
-                candleHistory[r.key] = JSON.parse(r.candles);
-            });
-        }
-    });
-});
+function loadStateFromFile() {
+    if (!fs.existsSync(stateFile)) return;
+    try {
+        const saved = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+        if (saved.gameState) gameState = saved.gameState;
+        if (saved.teams) teams = saved.teams;
+        if (saved.orders) orders = saved.orders;
+        if (saved.candleHistory) candleHistory = saved.candleHistory;
+    } catch (err) {
+        console.error('Failed to load saved state:', err.message);
+    }
+}
 
 function saveStateToDB() {
-    db.serialize(() => {
-        const stmtGS = db.prepare(`INSERT OR REPLACE INTO GameState (key, value) VALUES (?, ?)`);
-        stmtGS.run('state', JSON.stringify(gameState));
-        stmtGS.finalize();
-        
-        const stmtTeam = db.prepare(`INSERT OR REPLACE INTO Teams (name, cash, holdings, avgBuy) VALUES (?, ?, ?, ?)`);
-        Object.keys(teams).forEach(t => {
-            stmtTeam.run(t, teams[t].cash, JSON.stringify(teams[t].holdings), JSON.stringify(teams[t].avgBuy));
-        });
-        stmtTeam.finalize();
-
-        // Clear and insert orders
-        db.run(`DELETE FROM Orders`, () => {
-            const stmtOrder = db.prepare(`INSERT INTO Orders (id, stock, seller, qty, price) VALUES (?, ?, ?, ?, ?)`);
-            orders.forEach(o => {
-                stmtOrder.run(o.id, o.stock, o.seller, o.qty, o.price);
-            });
-            stmtOrder.finalize();
-        });
-
-        const stmtCandle = db.prepare(`INSERT OR REPLACE INTO CandleHistory (key, candles) VALUES (?, ?)`);
-        Object.keys(candleHistory).forEach(k => {
-            stmtCandle.run(k, JSON.stringify(candleHistory[k]));
-        });
-        stmtCandle.finalize();
-    });
+    const payload = {
+        gameState,
+        teams,
+        orders,
+        candleHistory
+    };
+    try {
+        fs.writeFileSync(stateFile, JSON.stringify(payload, null, 2));
+    } catch (err) {
+        console.error('Failed to save state:', err.message);
+    }
 }
+
+loadStateFromFile();
 
 // Reset Game
 function resetGame() {
@@ -121,10 +81,6 @@ function resetGame() {
     teams = {};
     orders = [];
     candleHistory = {};
-    db.run("DELETE FROM Teams");
-    db.run("DELETE FROM Orders");
-    db.run("DELETE FROM CandleHistory");
-    db.run("DELETE FROM GameState");
     saveStateToDB();
 }
 

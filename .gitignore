@@ -8,6 +8,7 @@ yarn-error.log*
 .vscode/
 .idea/
 mock_stock.sqlite
+mock_stock_state.json
 *.sqlite
 *.log
 dist/
