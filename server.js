@@ -162,7 +162,11 @@ function broadcastState() {
         gameState,
         teams,
         orders,
-        candleHistory
+        candleHistory,
+        PRICES,
+        STOCKS,
+        ROUND_DUR,
+        START_CASH
     });
 }
 setInterval(broadcastState, 2000);
@@ -172,6 +176,27 @@ function isMarketClosed() {
     if(gameState.round === 1) return false;
     const elapsed = Date.now() - gameState.roundStart;
     return elapsed >= ROUND_DUR;
+}
+
+function isValidStock(stock) {
+    return typeof stock === 'string' && STOCKS.includes(stock);
+}
+
+function toPositiveInt(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    const i = Math.floor(n);
+    return i > 0 ? i : null;
+}
+
+function toPositivePrice(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    return n > 0 ? Math.round(n) : null;
+}
+
+function pruneFilledOrders() {
+    orders = orders.filter((o) => o.qty > 0);
 }
 
 io.on('connection', (socket) => {
@@ -191,66 +216,83 @@ io.on('connection', (socket) => {
     socket.on('execBuy', ({CU, SEL, qty}) => {
         if(isMarketClosed()) return socket.emit('toast', {msg:'Market is closed', err:true});
         if(gameState.round !== 1) return socket.emit('toast', {msg:'IPO buying only in Round 1', err:true});
+        if(!isValidStock(SEL)) return socket.emit('toast', {msg:'Invalid stock selected', err:true});
+        const cleanQty = toPositiveInt(qty);
+        if(!cleanQty) return socket.emit('toast', {msg:'Enter a valid quantity', err:true});
         const price = PRICES[SEL][0];
-        const total = qty * price;
+        const total = cleanQty * price;
         const tm = teams[CU];
         if(!tm) return;
         if(tm.cash < total) return socket.emit('toast', {msg:'Not enough cash', err:true});
         
         const ph = tm.holdings[SEL]||0, pa = tm.avgBuy[SEL]||0;
         tm.cash -= total;
-        tm.holdings[SEL] = ph + qty;
-        tm.avgBuy[SEL] = ph > 0 ? (pa*ph + price*qty)/(ph+qty) : price;
+        tm.holdings[SEL] = ph + cleanQty;
+        tm.avgBuy[SEL] = ph > 0 ? (pa*ph + price*cleanQty)/(ph+cleanQty) : price;
         saveStateToDB();
-        socket.emit('toast', {msg: `Bought ${qty} × ${SEL} @ ₹${price}`});
+        socket.emit('toast', {msg: `Bought ${cleanQty} × ${SEL} @ ₹${price}`});
         broadcastState();
     });
 
     socket.on('execSell', ({CU, SEL, qty, price}) => {
         if(isMarketClosed()) return socket.emit('toast', {msg:'Market is closed', err:true});
+        if(!isValidStock(SEL)) return socket.emit('toast', {msg:'Invalid stock selected', err:true});
+        const cleanQty = toPositiveInt(qty);
+        const cleanPrice = toPositivePrice(price);
+        if(!cleanQty) return socket.emit('toast', {msg:'Enter a valid quantity', err:true});
+        if(!cleanPrice) return socket.emit('toast', {msg:'Enter a valid asking price', err:true});
         const tm = teams[CU];
         if(!tm) return;
         const held = tm.holdings[SEL]||0;
-        if(qty > held) return socket.emit('toast', {msg: `You only hold ${held} shares`, err:true});
+        if(cleanQty > held) return socket.emit('toast', {msg: `You only hold ${held} shares`, err:true});
         
-        tm.holdings[SEL] = held - qty;
+        tm.holdings[SEL] = held - cleanQty;
         gameState.oid++;
-        orders.push({id: gameState.oid, stock: SEL, seller: CU, qty, price});
+        orders.push({id: gameState.oid, stock: SEL, seller: CU, qty: cleanQty, price: cleanPrice});
         saveStateToDB();
-        socket.emit('toast', {msg: `Listed ${qty} × ${SEL} @ ₹${price}`});
+        socket.emit('toast', {msg: `Listed ${cleanQty} × ${SEL} @ ₹${cleanPrice}`});
         broadcastState();
     });
 
     socket.on('execOrdBuy', ({CU, SEL, ordId, qty}) => {
         if(isMarketClosed()) return socket.emit('toast', {msg:'Market is closed', err:true});
-        const o = orders.find(x => x.id === ordId);
+        const cleanOrdId = Number(ordId);
+        const cleanQty = toPositiveInt(qty);
+        if(!Number.isInteger(cleanOrdId)) return socket.emit('toast', {msg:'Invalid order selected', err:true});
+        if(!cleanQty) return socket.emit('toast', {msg:'Enter a valid quantity', err:true});
+        const o = orders.find(x => x.id === cleanOrdId);
         if(!o || o.qty <= 0) return socket.emit('toast', {msg:'Order no longer available', err:true});
         if(o.seller === CU) return socket.emit('toast', {msg:"Can't buy your own order", err:true});
         
-        const aq = Math.min(qty, o.qty);
+        const aq = Math.min(cleanQty, o.qty);
         const total = aq * o.price;
         const buyer = teams[CU];
         if(!buyer) return;
         if(buyer.cash < total) return socket.emit('toast', {msg:'Not enough cash!', err:true});
+        const stockKey = o.stock;
         
-        const ph = buyer.holdings[SEL]||0, pa = buyer.avgBuy[SEL]||0;
+        const ph = buyer.holdings[stockKey]||0, pa = buyer.avgBuy[stockKey]||0;
         buyer.cash -= total;
-        buyer.holdings[SEL] = ph + aq;
-        buyer.avgBuy[SEL] = ph > 0 ? (pa*ph + o.price*aq)/(ph+aq) : o.price;
+        buyer.holdings[stockKey] = ph + aq;
+        buyer.avgBuy[stockKey] = ph > 0 ? (pa*ph + o.price*aq)/(ph+aq) : o.price;
         
         if(teams[o.seller]) teams[o.seller].cash += total;
         o.qty -= aq;
+        pruneFilledOrders();
         saveStateToDB();
-        socket.emit('toast', {msg: `Bought ${aq} × ${SEL} from ${o.seller} @ ₹${o.price}`});
+        socket.emit('toast', {msg: `Bought ${aq} × ${stockKey} from ${o.seller} @ ₹${o.price}`});
         broadcastState();
     });
 
     socket.on('cancelOrder', ({CU, id}) => {
-        const o = orders.find(x => x.id === id);
+        const cleanId = Number(id);
+        if(!Number.isInteger(cleanId)) return;
+        const o = orders.find(x => x.id === cleanId);
         if(!o) return;
         if(o.seller !== CU) return; // Authorization check
         if(teams[CU]) teams[CU].holdings[o.stock] = (teams[CU].holdings[o.stock]||0) + o.qty;
         o.qty = 0;
+        pruneFilledOrders();
         saveStateToDB();
         socket.emit('toast', {msg: 'Order cancelled'});
         broadcastState();
@@ -261,7 +303,7 @@ io.on('connection', (socket) => {
         if(pass !== ADMIN_PASS) return socket.emit('toast', {msg: 'Wrong password', err:true});
         
         if(action === 'addTeam') {
-            const name = payload.trim();
+            const name = typeof payload === 'string' ? payload.trim() : '';
             if(!name) return;
             if(teams[name]) return socket.emit('toast', {msg: 'Team already exists', err:true});
             teams[name] = {cash: START_CASH, holdings: {}, avgBuy: {}};
@@ -297,16 +339,18 @@ io.on('connection', (socket) => {
         }
         else if(action === 'fastForwardTo') {
             if(!gameState.gameStarted) return;
-            gameState.roundStart = Date.now() - ROUND_DUR + payload * 60 * 1000;
+            const mins = Number(payload);
+            if(!Number.isFinite(mins)) return;
+            gameState.roundStart = Date.now() - ROUND_DUR + mins * 60 * 1000;
             saveStateToDB();
-            socket.emit('toast', {msg: `Fast-forwarded to ${payload}m`});
+            socket.emit('toast', {msg: `Fast-forwarded to ${mins}m`});
         }
         else if(action === 'resetGame') {
             resetGame();
             io.emit('toast', {msg: 'GAME RESET'});
         }
         else if(action === 'broadcastNews') {
-            gameState.news = payload.trim();
+            gameState.news = typeof payload === 'string' ? payload.trim() : '';
             saveStateToDB();
             io.emit('toast', {msg: 'News broadcast!'});
         }
@@ -316,10 +360,13 @@ io.on('connection', (socket) => {
             socket.emit('toast', {msg: 'News cleared'});
         }
         else if(action === 'adminCancel') {
-            const o = orders.find(x => x.id === payload);
+            const cleanId = Number(payload);
+            if(!Number.isInteger(cleanId)) return;
+            const o = orders.find(x => x.id === cleanId);
             if(!o) return;
             if(teams[o.seller]) teams[o.seller].holdings[o.stock] = (teams[o.seller].holdings[o.stock]||0) + o.qty;
             o.qty = 0;
+            pruneFilledOrders();
             saveStateToDB();
             socket.emit('toast', {msg: 'Order cancelled'});
         }
@@ -328,6 +375,15 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Another server is already running.`);
+        console.error('Stop the existing process (Ctrl+C in the other terminal) or use a different PORT.');
+        process.exit(1);
+    }
+    throw err;
+});
+
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
