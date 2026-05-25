@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-let content = fs.readFileSync('mock_stock_simulator (2).html', 'utf8');
+const sourcePath = path.join(__dirname, 'dalaal_street.html');
+const outputPath = path.join(__dirname, 'public', 'index.html');
+
+let content = fs.readFileSync(sourcePath, 'utf8');
 
 // Insert Socket.io script before the main script
 content = content.replace('<script>', '<script src="/socket.io/socket.io.js"></script>\n<script>\nconst socket = io();');
@@ -13,6 +16,26 @@ let STOCKS = [];
 let PRICES = {};
 let ROUND_DUR = 10*60*1000;
 let START_CASH = 1500000;
+
+function isTypingTextInput(){
+  const el=document.activeElement;
+  return !!el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable);
+}
+function preserveFocusedField(){
+  const el=document.activeElement;
+  if(!el||!(el.tagName==='INPUT'||el.tagName==='TEXTAREA')) return null;
+  return {id:el.id,value:el.value,start:el.selectionStart,end:el.selectionEnd};
+}
+function restoreFocusedField(snapshot){
+  if(!snapshot||!snapshot.id) return;
+  const el=document.getElementById(snapshot.id);
+  if(!el) return;
+  el.value=snapshot.value;
+  if(typeof snapshot.start==='number'&&el.setSelectionRange){
+    try{el.setSelectionRange(snapshot.start,snapshot.end??snapshot.start);}catch(e){}
+  }
+  if(el.focus) el.focus({preventScroll:true});
+}
 
 socket.on('stateUpdate', (data) => {
     if(data.STOCKS) STOCKS = data.STOCKS;
@@ -30,6 +53,7 @@ socket.on('stateUpdate', (data) => {
     globalState.orders = data.orders;
     globalState.candleHistory = data.candleHistory;
     
+    if(isTypingTextInput()) return;
     render();
 });
 
@@ -46,18 +70,22 @@ content = content.replace(/function gs\(\).*?function ns\(\).*?function sv\(s\).
 
 // Replace actions
 content = content.replace(/function execBuy\(\).*?renderScreen\(\);\n}/s, `function execBuy(){
-  const q=parseInt(document.getElementById('tp-qty')?.value)||0;
+  const q=parseInt(document.getElementById('tp-qty')?.value,10)||0;
+  if(!Number.isFinite(q)||q<=0){toast('Enter a valid quantity',true);return}
   socket.emit('execBuy', {CU, SEL, qty: q});
 }`);
 
 content = content.replace(/function execSell\(\).*?renderScreen\(\);\n}/s, `function execSell(){
-  const q=parseInt(document.getElementById('tp-sq')?.value)||0;
-  const p=parseFloat(document.getElementById('tp-sp')?.value)||0;
+  const q=parseInt(document.getElementById('tp-sq')?.value,10)||0;
+  const p=Math.round(parseFloat(document.getElementById('tp-sp')?.value)||0);
+  if(!Number.isFinite(q)||q<=0){toast('Enter a valid quantity',true);return}
+  if(!Number.isFinite(p)||p<=0){toast('Enter a valid asking price',true);return}
   socket.emit('execSell', {CU, SEL, qty: q, price: p});
 }`);
 
 content = content.replace(/function execOrdBuy\(ordId\).*?renderScreen\(\);\n}/s, `function execOrdBuy(ordId){
-  const q=parseInt(document.getElementById('tp-bq')?.value)||0;
+  const q=parseInt(document.getElementById('tp-bq')?.value,10)||0;
+  if(!Number.isFinite(q)||q<=0){toast('Enter a valid quantity',true);return}
   socket.emit('execOrdBuy', {CU, SEL, ordId, qty: q});
 }`);
 
@@ -94,7 +122,11 @@ function clearNews(){ socket.emit('adminAction', {action: 'clearNews', pass: ADM
 function adminCancel(id){ socket.emit('adminAction', {action: 'adminCancel', payload: id, pass: ADMIN_PASS}); }
 `;
 
-content = content.replace(/function startGame\(\).*?adminSurgicalUpdate\(\);\n}/s, adminActions);
+content = content.replace(/function addTeam\(\)[\s\S]*?function adminCancel\(id\)[\s\S]*?\n}/s, adminActions);
+
+// The socket backend does not expose pause/resume controls yet, so drop that
+// UI branch from the generated admin card to avoid dead buttons.
+content = content.replace(/\$\{s\.gameStarted&&\!roundDone\?\(s\.paused[\s\S]*?:''\)\}/s, '');
 
 // Remove the constants declaration block since it's injected by socket
 content = content.replace(/const STOCKS=.*?;/s, '');
@@ -103,5 +135,5 @@ content = content.replace(/const ROUND_DUR=.*?;/s, '');
 content = content.replace(/const START_CASH=.*?;/s, '');
 
 // Save to public/index.html
-fs.writeFileSync('public/index.html', content);
+fs.writeFileSync(outputPath, content);
 console.log('Frontend built and saved to public/index.html');
